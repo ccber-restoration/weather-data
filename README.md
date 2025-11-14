@@ -2,4 +2,7 @@
 
 The purpose of this repository is to work with local weather data, including data from the NOAA Weather station at Coal Oil Point Reserve: https://www.ncei.noaa.gov/access/crn/sensors.htm?stationId=1529#precip
 
-The 'noaa' R package provides functionality to query NOAA weather data from RStudio
+
+- Tried using the 'noaa' R package to query NOAA weather data from RStudio, but ran into issues.
+- Instead downloaded data from https://www.ncdc.noaa.gov/cdo-web/search 
+
