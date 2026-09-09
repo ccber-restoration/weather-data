@@ -11,6 +11,8 @@
 #                 
 # =============================================================================
 
+library(tidyverse)
+
 #read in tide data
 
 #note that there are 13 lines of metadata at the top of the txt file
@@ -29,7 +31,7 @@ tides_2025_03 <- read_delim(file = "data/NOAA_tide_predictions/NOAA_tide_preds_N
   mutate(datetime = as.POSIXct(date) + time)
 
 tides_2025 <- bind_rows(tides_2025_02, tides_2025_03) %>% 
-  filter(date < as.date("2025-04-11"))
+  filter(date < as.Date("2025-04-11"))
 
 #quick plot
 
