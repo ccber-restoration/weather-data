@@ -35,6 +35,16 @@ wy_2025_end <- as.POSIXct("2025-09-30 23:59:59", tz = "America/Los_Angeles")
 wy_2025_start_date <- ymd("2024-10-01", tz = "America/Los_Angeles")
 wy_2025_end_date <- ymd("2025-09-30", tz = "America/Los_Angeles")
 
+# define start and end of 2025 & 2026 water year
+
+#as datetimes
+wy_2025_2026_start <- as.POSIXct("2024-10-01 00:00:00", tz = "America/Los_Angeles" )
+wy_2025_2026_end <- as.POSIXct("2026-03-30 23:59:59", tz = "America/Los_Angeles")
+
+#as dates
+wy_2025_2026_start_date <- ymd("2024-10-01", tz = "America/Los_Angeles")
+wy_2025_2026_end_date <- ymd("2026-03-30", tz = "America/Los_Angeles")
+
 # logger elevations ----
 
 #ordered from "downstream" (lower) to upstream (higher)
@@ -145,6 +155,7 @@ venoco_2024_11_13_2025_10_22 <- bind_rows(venoco_2025_wy_a, venoco_2025_wy_b, ve
 #declutter
 remove(venoco_2025_wy_a, venoco_2025_wy_b, venoco_2025_wy_c, venoco_2025_wy_d)
 
+
 #test plot
 venoco_wse_fig <- ggplot(data = venoco_2024_11_13_2025_10_22, aes(x = datetime, y = wse)) +
   theme_cowplot() +
@@ -161,7 +172,7 @@ venoco_wse_fig <- ggplot(data = venoco_2024_11_13_2025_10_22, aes(x = datetime, 
                )
 
 
-venoco_wse_fig 
+venoco_wse_fig
 
 #make interactive
 ggplotly(venoco_wse_fig)
@@ -194,7 +205,7 @@ phelps_wy_25_b <- read_csv(file = "data/leveloggers/Phelps_Creek_Marymount_Bridg
   mutate(date = date(datetime),
          time = as_hms(datetime))
 
-phelps_wy_25_c <- read_csv(file = "data/leveloggers/Phelps_Creek_Marymount_Bridge/Phelps_05.20.24_08.29.25_Compensated.csv", skip = 11) %>%
+phelps_wy_25_c <- read_csv(file = "data/leveloggers/Phelps_Creek_Marymount_Bridge/Phelps_05.20.25_08.29.25_Compensated.csv", skip = 11) %>%
   clean_names() %>% 
   mutate(
     #parse date from character to date format
@@ -206,13 +217,38 @@ phelps_wy_25_c <- read_csv(file = "data/leveloggers/Phelps_Creek_Marymount_Bridg
   select(-ms)
  
 
-phelps_wy_25_d <- read_csv(file = "data/leveloggers/Phelps_Creek_Marymount_Bridge/Phelps_08.29.25_11.13.25_Compensated.csv") %>%
+phelps_wy_26_a <- read_csv(file = "data/leveloggers/Phelps_Creek_Marymount_Bridge/Phelps_08.29.25_11.18.25_Compensated.csv") %>%
   mutate(date = date(datetime),
          time = as_hms(datetime))
 
-#combine four Phelps dataframes into one
+# adding phelps data from 11/18/26-03/03/26
+phelps_wy_26_b <- read_csv(file = "data/leveloggers/Phelps_Creek_Marymount_Bridge/Phelps_2025.11.18_2026.03.03_Compensated.csv", skip = 11) %>%
+  clean_names() %>% 
+  mutate(
+    #parse date from character to date format
+    date = mdy(date),
+    #convert level from m to ft
+    comp_level_ft = conv_unit(level, "m", "ft"),
+    #create datetime variable, first converting date to POSIXct
+    datetime = as.POSIXct(date) + time) %>% 
+  select(-ms)
 
-phelps_wy_25 <- bind_rows(phelps_wy_25_a, phelps_wy_25_b, phelps_wy_25_c, phelps_wy_25_d) %>% 
+# adding phelps data from 3/3/26 to 4/1/26
+phelps_wy_26_c <- read_csv(file = "data/leveloggers/Phelps_Creek_Marymount_Bridge/Phelps_2026.03.03_2026.04.01_Compensated.csv", skip = 11) %>%
+  clean_names() %>% 
+  mutate(
+    #parse date from character to date format
+    date = mdy(date),
+    #convert level from m to ft
+    comp_level_ft = conv_unit(level, "m", "ft"),
+    #create datetime variable, first converting date to POSIXct
+    datetime = as.POSIXct(date) + time) %>% 
+  select(-ms)
+
+#combine six Phelps dataframes into one
+
+phelps_wy_25_26 <- bind_rows(phelps_wy_25_a, phelps_wy_25_b, phelps_wy_25_c,
+                             phelps_wy_26_a, phelps_wy_26_b, phelps_wy_26_c) %>% 
   #remove level column in meters
   select(-level) %>% 
   mutate(
@@ -220,9 +256,15 @@ phelps_wy_25 <- bind_rows(phelps_wy_25_a, phelps_wy_25_b, phelps_wy_25_c, phelps
          wse = comp_level_ft + 9.99,
          station = "Phelps")
 
+#write combined data to file
+write_csv(phelps_wy_25_26,
+          "data/leveloggers/Phelps_Creek_Marymount_Bridge/combined/Phelps_2024.03.19_2026.04.01_Compensated.csv")
+
 #declutter
-remove(phelps_wy_25_a, phelps_wy_25_b, phelps_wy_25_c, phelps_wy_25_d)
-  
+remove(phelps_wy_25_a, phelps_wy_25_b, phelps_wy_25_c, phelps_wy_26_a,
+       phelps_wy_26_b, phelps_wy_26_c)
+
+# test plot for wy 25
 Phelps_wse_fig <- ggplot(data = phelps_wy_25, aes(x = datetime, y = wse)) +
   geom_line() +
   #theme_cowplot() +
@@ -235,6 +277,21 @@ Phelps_wse_fig <- ggplot(data = phelps_wy_25, aes(x = datetime, y = wse)) +
                    limits = c(wy_2025_start, wy_2025_end))
 
 Phelps_wse_fig
+
+# plot for wy 25 and wy 26 up through March
+
+Phelps_wse_2526_fig <- ggplot(data = phelps_wy_25_26, aes(x = datetime, y = wse)) +
+  geom_line() +
+  #theme_cowplot() +
+  ylab("Water elevation (ft)") +
+  xlab("Date") +
+  scale_y_continuous(limits = c(10,15)) +
+  scale_x_datetime(date_breaks =  "2 month", 
+                   date_minor_breaks = "1 month",
+                   date_labels = "%b %Y",
+                   limits = c(wy_2025_2026_start, wy_2025_2026_end))
+
+Phelps_wse_2526_fig
 
 # Assemble water level + precip multi-panel fig ----
 

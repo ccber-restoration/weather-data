@@ -167,8 +167,8 @@ write_csv(vnc_may_comp,"data/leveloggers/Venoco_Bridge/Venoco_05.10.25_05.20.25_
 
 # 4. Phelps Creek ----
 
-## Read in Phelps data from 8/29-11/13. Level is in meters.
-phlp<-read_csv("data/leveloggers/Phelps_Creek_Marymount_Bridge/Phelps_08.29.25_11.13.25_Uncompensated.csv", skip = 11) %>% 
+## Read in Phelps data from 8/29-11/18. Level is in meters.
+phlp<-read_csv("data/leveloggers/Phelps_Creek_Marymount_Bridge/Phelps_2025.08.29_2026.11.18_Uncompensated.csv", skip = 11) %>% 
   clean_names() %>% 
   mutate(
     #parse date from character to date format
@@ -184,7 +184,7 @@ phlp_comp<-left_join(phlp,sba,by=join_by(datetime == valid)) %>%
   # keep relevant columns
   select(datetime,comp_level_ft,temperature)
 
-write_csv(phlp_comp,"data/leveloggers/Phelps_Creek_Marymount_Bridge/Phelps_08.29.25_11.13.25_Compensated.csv")
+write_csv(phlp_comp,"data/leveloggers/Phelps_Creek_Marymount_Bridge/Phelps_08.29.25_11.18.25_Compensated.csv")
 
 ## Read in uncompensated Phelps Creek data from 5/10-5/20. Level is in meters.
 phlp_may<-read_csv("data/leveloggers/Phelps_Creek_Marymount_Bridge/Phelps_02.20.24_08.29.25_Uncompensated.csv", skip = 11) %>% 
